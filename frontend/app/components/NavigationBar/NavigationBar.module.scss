@@ -1,0 +1,24 @@
+.nb_wrap {
+  &__nb {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    
+    &__logo {
+  
+    }
+  
+    &__sections {
+      display: flex;
+      gap: 40px;
+      align-items: center;
+    }
+  
+    &__lk {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+    }
+  }
+}
