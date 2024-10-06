@@ -1,7 +1,7 @@
-import Large_logo from "./src/assets/logos/kokos_logo_large.png";
+import Large_logo from "@assets/logos/kokos_logo_large.png";
 import Image from "next/image";
 import styles from "./page.module.scss";
-import { UniversalButton } from "./src/components/Buttons/UniversalButton";
+import { UniversalButton } from "@components/Buttons/UniversalButton";
 
 export default function Home() {
   return (

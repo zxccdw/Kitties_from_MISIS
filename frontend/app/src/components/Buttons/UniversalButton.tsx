@@ -7,15 +7,19 @@ type Props = {
   color: "red" | "white" | "black";
   backColor: "transparent" | "red";
   border: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  onClick?: () => void;
 };
 
 const StyledButton = styled.button<Props>`
   padding: 10px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 20px;
   font-size: 16px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: ${({ color = "white" }) => {
     switch (color) {
       case "black":
@@ -42,8 +46,12 @@ const StyledButton = styled.button<Props>`
     `};
 `;
 
-const UniversalButton = ({ children, ...props }: Props) => {
-  return <StyledButton {...props}>{children}</StyledButton>;
+const UniversalButton = ({ children, onClick, ...props }: Props) => {
+  return (
+    <StyledButton onClick={onClick} {...props}>
+      {children}
+    </StyledButton>
+  );
 };
 
 export { UniversalButton };
