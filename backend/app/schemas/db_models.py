@@ -7,9 +7,10 @@ from sqlalchemy import (
     Numeric,
     String,
     JSON,
-    Enum
+    Enum,
+    ForeignKey
 )
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 import enum
 
 
@@ -39,12 +40,18 @@ class User(Base):
     sex = Column(Enum(Gender))
     fan_status = Column(Enum(FanRole), default=FanRole.default)
     avatar_url = Column(String(255), nullable=True)
+    is_staff = Column(Boolean, default=False)
+    
+    user_password_rel = relationship("UserPassword")
+    event_user_rel = relationship("GameEventUser")
+    comment_rel = relationship("Comment")
+    publication_rel = relationship("Publication")
 
 
 class UserPassword(Base):
     __tablename__ = "user_password"
     
-    id_user = Column(BigInteger, foreign_key="user.id_user", primary_key=True)
+    id_user = Column(BigInteger, ForeignKey("user.id_user"), primary_key=True)
     hash_password = Column(String(255), nullable=False)
 
 
@@ -60,12 +67,14 @@ class GameEvent(Base):
     location = Column(String(255), nullable=True)
     stream_url = Column(String(255), nullable=True)
     
+    event_user_rel = relationship("GameEventUser")
+    
 
 class GameEventUser(Base):
     __tablename__ = "event_user"
     
-    id_user = Column(BigInteger, foreign_key="user.id_user", primary_key=True)
-    id_event = Column(BigInteger, foreign_key="event.id_event", primary_key=True)
+    id_user = Column(BigInteger, ForeignKey("user.id_user"), primary_key=True)
+    id_event = Column(BigInteger, ForeignKey("event.id_event"), primary_key=True)
     register_date = Column(DateTime(), nullable=False)
     
     
@@ -73,7 +82,7 @@ class Publication(Base):
     __tablename__ = "publication"
     
     id_publication = Column(BigInteger, primary_key=True)
-    id_user = Column(BigInteger, foreign_key="user.id_user", nullable=False)
+    id_user = Column(BigInteger, ForeignKey("user.id_user"), nullable=False)
     title = Column(String(255), nullable=False)
     short_description = Column(String(255), nullable=False)
     publication_date = Column(DateTime(), nullable=False)
@@ -84,18 +93,20 @@ class PublicationLinkedS3(Base):
     __tablename__ = "publication_linked_s3"
     
     id_file = Column(BigInteger, primary_key=True)
-    id_publication = Column(BigInteger, foreign_key="publication.id_publication", nullable=False)
+    id_publication = Column(BigInteger, ForeignKey("publication.id_publication"), nullable=False)
     url = Column(String(255), nullable=False)
     date = Column(DateTime(), nullable=False)
     priority = Column(BigInteger, nullable=False)
+    
+    
     
 
 class Comment(Base):
     __tablename__ = "comment"
     
     id_comment = Column(BigInteger, primary_key=True)
-    id_user = Column(BigInteger, foreign_key="user.id_user", nullable=False)
-    id_publication = Column(BigInteger, foreign_key="publication.id_publication", nullable=False)
+    id_user = Column(BigInteger, ForeignKey("user.id_user"), nullable=False)
+    id_publication = Column(BigInteger, ForeignKey("publication.id_publication"), nullable=False)
     text = Column(Text, nullable=False)
     date = Column(DateTime(), nullable=False)
     
