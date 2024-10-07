@@ -24,6 +24,7 @@ const SocialLoginButtonBlock = (props: Props) => {
         Войти с помощью
         <Image src={VKLogo} alt="VK logo" width={logoWidth} />
       </UniversalButton>
+      <div style={{ color: "#E13B39", fontSize: "18px" }}>или</div>
     </div>
   );
 };

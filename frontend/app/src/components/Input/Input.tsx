@@ -11,6 +11,7 @@ const Input = (props: InputHTMLAttributes<HTMLInputElement>) => {
         fontSize: "18px",
         width: "100%",
         padding: "5px 10px",
+        margin: "10px 0px",
       }}
     />
   );

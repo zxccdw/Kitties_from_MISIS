@@ -55,7 +55,9 @@ const NavigationBar = (props: Props) => {
         </nav>
         <div className={styles.nb_wrap__nb__lk}>
           <Image src={SearchSvg} alt="Search icon" />
-          <Image src={UserSvg} alt="User icon" />
+          <Link href={"/login"}>
+            <Image src={UserSvg} alt="User icon" />
+          </Link>
         </div>
       </div>
     </div>

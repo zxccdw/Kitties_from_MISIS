@@ -15,7 +15,14 @@ export default function LoginLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       {/* <NavigationBar /> */}
       <Image src={KokosGrLogo} alt="Kokos group logo" />
       {children}

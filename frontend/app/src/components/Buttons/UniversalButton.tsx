@@ -16,6 +16,7 @@ const StyledButton = styled.button<Props>`
   border: none;
   border-radius: 20px;
   font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;

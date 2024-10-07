@@ -1,10 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import styles from "./page.module.scss";
 import stadium from "./src/assets/background/stadium.png";
 import backgroundCard from "./src/assets/background/loadingImage.png";
-import { styleText } from "util";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <div className={styles.page}>
       <div className={styles.page__welcBlock}>
@@ -37,7 +40,9 @@ export default function Home() {
               border: "none",
               color: "white",
               backgroundColor: "#E02A26",
+              cursor: "pointer",
             }}
+            onClick={() => router.push("/LogStart")}
           >
             ПРИСОЕДИНЯЙСЯ К НАМ!
           </button>
