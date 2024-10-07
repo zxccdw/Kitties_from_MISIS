@@ -79,4 +79,23 @@ class PublicationSchema(BaseModel):
                 "text": "Publication text"
             }
         }
+        
+        
+class CommentSchema(BaseModel):
+    id_comment: int = Field(...)
+    id_user: int = Field(...)
+    id_publication: int = Field(...)
+    text: str = Field(...)
+    date: datetime = Field(...) # unix time
     
+    class Config:
+        orm_mode = True
+        schema_extra = {
+            "example": {
+                "id_comment": 1,
+                "id_user": 1,
+                "id_publication": 1,
+                "text": "Comment text",
+                "date": "2024-10-07 13:00:00.956741"
+            }
+        }

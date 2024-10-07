@@ -15,8 +15,8 @@ from sqlalchemy.orm import declarative_base, relationship
 import enum
 
 
-Base = declarative_base()
-Base.metadata = MetaData(schema="Kokoc")
+# Base = declarative_base()
+# Base.metadata = MetaData(schema="Kokoc")
 
 class FanRole(enum.Enum):
     default = "default"

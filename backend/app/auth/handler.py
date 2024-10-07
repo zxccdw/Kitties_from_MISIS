@@ -1,0 +1,29 @@
+import time
+from typing import Dict
+from os import getenv
+import jwt
+
+JWT_SECRET = getenv("JWT_SECRET")
+JWT_ALGORITHM = getenv("JWT_ALGORITHM")
+JWT_EXPIRE_TIME = getenv("JWT_EXPIRE_TIME") # in seconds
+
+
+def token_response(token: str):
+    return {"access_token": token}
+
+
+def signJWT(user_id: int) -> Dict[str, str]:
+    payload = {"user_id": user_id, "expires": time.time() + JWT_EXPIRE_TIME}
+    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    return token_response(token)
+
+
+def decodeJWT(token: str) -> dict:
+    try:
+        decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return decoded_token if decoded_token["expires"] >= time.time() else None
+    except:
+        return {}
+
+print(100)
