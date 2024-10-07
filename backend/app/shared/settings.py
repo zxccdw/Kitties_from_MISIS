@@ -12,7 +12,7 @@ class AppSettings(BaseSettings):
 
     uvicorn_host: str = "localhost"
     uvicorn_port: int = 8000
-    uvicorn_workers: int = mp.cpu_count() * 2
+    uvicorn_workers: int = 1 # mp.cpu_count() * 2
     uvicorn_log_level: str = "WARNING"
     
     jwt_secret: str = "secret"
