@@ -1,0 +1,26 @@
+.welcText{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  
+    &__title{
+      text-align: center;
+    }
+  
+    &__main{
+      text-align: center;
+      width: 45%
+    }
+  
+    &__titleText{
+      font-size: 55px;
+      font-weight: 700;
+    }
+  
+    &__mainText{
+      font-size: 35px;
+      font-weight: 500;
+    }
+  }

@@ -2,25 +2,12 @@
 
 import React from "react";
 import styles from "./LoginForm.module.scss";
-import { SocialLoginButtonBlock } from "@components/SocialLoginButtonBlock/SocialLoginButtonBlock";
 import { Input } from "@components/Input/Input";
 type Props = {};
 
 const LoginForm = (props: Props) => {
   return (
     <div className={styles.lf}>
-      <div className={styles.welcText}>
-        <div className={styles.welcText__title}>
-          <p className={styles.welcText__titleText}>Добро пожаловать!</p>
-        </div>
-        <div className={styles.welcText__main}>
-          <p className={styles.welcText__mainText}>
-            Присоединяйся сейчас, смотри матчи в прямом эфире и обсуждай их с
-            фанатами.
-          </p>
-        </div>
-      </div>
-      <SocialLoginButtonBlock />
       <form
         action=""
         style={{
