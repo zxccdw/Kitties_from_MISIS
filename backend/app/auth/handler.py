@@ -5,7 +5,7 @@ import jwt
 
 JWT_SECRET = getenv("JWT_SECRET")
 JWT_ALGORITHM = getenv("JWT_ALGORITHM")
-JWT_EXPIRE_TIME = getenv("JWT_EXPIRE_TIME") # in seconds
+JWT_EXPIRE_TIME = int(getenv("JWT_EXPIRE_TIME")) # in seconds
 
 
 def token_response(token: str):
@@ -25,5 +25,3 @@ def decodeJWT(token: str) -> dict:
         return decoded_token if decoded_token["expires"] >= time.time() else None
     except:
         return {}
-
-print(100)
