@@ -16,11 +16,12 @@ import requests as req
 
 class DBManager:
     def __init__(self, log, itools):
-        self.pg_user = getenv("PG_USER")
-        self.pg_pass = getenv("PG_PASS")
-        self.pg_host = getenv("PG_HOST")
-        self.pg_port = getenv("PG_PORT")
-        self.pg_db = getenv("PG_DB")
+        # self.pg_user = getenv("PG_USER")
+        # self.pg_pass = getenv("PG_PASS")
+        # self.pg_host = getenv("PG_HOST")
+        # self.pg_port = getenv("PG_PORT")
+        # self.pg_db = getenv("PG_DB")
+        
         self.log = log
         self.itools = itools
         connected = False

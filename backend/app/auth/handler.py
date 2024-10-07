@@ -2,10 +2,15 @@ import time
 from typing import Dict
 from os import getenv
 import jwt
+import shared.settings as settings
 
-JWT_SECRET = getenv("JWT_SECRET")
-JWT_ALGORITHM = getenv("JWT_ALGORITHM")
-JWT_EXPIRE_TIME = int(getenv("JWT_EXPIRE_TIME")) # in seconds
+# JWT_SECRET = getenv("JWT_SECRET")
+# JWT_ALGORITHM = getenv("JWT_ALGORITHM")
+# JWT_EXPIRE_TIME = int(getenv("JWT_EXPIRE_TIME")) # in seconds
+
+JWT_SECRET = settings.JWT_SECRET
+JWT_ALGORITHM = settings.JWT_ALGORITHM
+JWT_EXPIRE_TIME = settings.JWT_EXPIRE_TIME  # in seconds
 
 
 def token_response(token: str):
