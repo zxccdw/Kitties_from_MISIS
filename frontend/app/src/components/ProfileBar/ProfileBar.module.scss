@@ -1,0 +1,14 @@
+.pb {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  // box-shadow: 0 5px 0 10px black;
+  // box-shadow: 0 -6px 4px -4px rgba(0, 0, 0, 0.2);
+
+  a:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
