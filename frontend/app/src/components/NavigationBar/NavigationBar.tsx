@@ -14,7 +14,9 @@ const NavigationBar = (props: Props) => {
       <div className={styles.nb_wrap__nb}>
         <nav className={styles.nb_wrap__nb__sections}>
           <div className={styles.nb_wrap__nb__logo}>
-            <Image src={Logo} alt="Logo" />
+            <Link href={"/"}>
+              <Image src={Logo} alt="Logo" />
+            </Link>
           </div>
           <Link
             className={styles.nb_wrap__nb__sections__section}

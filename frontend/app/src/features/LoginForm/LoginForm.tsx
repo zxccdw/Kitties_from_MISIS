@@ -3,9 +3,13 @@
 import React from "react";
 import styles from "./LoginForm.module.scss";
 import { Input } from "@components/Input/Input";
+import { UniversalButton } from "@components/Buttons/UniversalButton";
 type Props = {};
 
 const LoginForm = (props: Props) => {
+  const onSubmit = () => {
+    return;
+  };
   return (
     <div className={styles.lf}>
       <form
