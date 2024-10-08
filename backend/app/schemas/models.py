@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Optional
-from db_schemas import Gender
 from enum import Enum
 from datetime import datetime
 

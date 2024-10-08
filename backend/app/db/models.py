@@ -15,8 +15,8 @@ from sqlalchemy.orm import declarative_base, relationship
 import enum
 
 
-# Base = declarative_base()
-# Base.metadata = MetaData(schema="Kokoc")
+Base = declarative_base()
+Base.metadata = MetaData(schema="Kokoc")
 
 class FanRole(enum.Enum):
     default = "default"
@@ -42,18 +42,11 @@ class User(Base):
     fan_status = Column(Enum(FanRole), default=FanRole.default)
     avatar_url = Column(String(255), nullable=True)
     is_staff = Column(Boolean, default=False)
+    hashed_password = Column(String(255), nullable=False)
     
-    user_password_rel = relationship("UserPassword")
     event_user_rel = relationship("GameEventUser")
     comment_rel = relationship("Comment")
     publication_rel = relationship("Publication")
-
-
-class UserPassword(Base):
-    __tablename__ = "user_password"
-    
-    id_user = Column(BigInteger, ForeignKey("user.id_user"), primary_key=True)
-    hash_password = Column(String(255), nullable=False)
 
 
 class GameEvent(Base):
