@@ -2,6 +2,7 @@ import Large_logo from "@assets/logos/kokos_logo_large.png";
 import Image from "next/image";
 import styles from "./page.module.scss";
 import { UniversalButton } from "@components/Buttons/UniversalButton";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -16,12 +17,16 @@ export default function Home() {
           <br />и обсуждай их с фанатами
         </p>
       </div>
-      <UniversalButton color="white" backColor="red" border={false}>
-        Зарегистрироваться
-      </UniversalButton>
-      <UniversalButton color="black" backColor="transparent" border={false}>
-        Уже есть аккаунт
-      </UniversalButton>
+      <Link href={"/register"}>
+        <UniversalButton color="white" backColor="red" border={false}>
+          Зарегистрироваться
+        </UniversalButton>
+      </Link>
+      <Link href={"/login"}>
+        <UniversalButton color="black" backColor="transparent" border={false}>
+          Уже есть аккаунт
+        </UniversalButton>
+      </Link>
     </div>
   );
 }

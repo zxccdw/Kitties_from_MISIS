@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import styles from "./page.module.css";
+import styles from "./Calendar.module.scss";
 
 interface Event {
   id: number;
@@ -16,18 +16,18 @@ const CalendarComponent: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [eventName, setEventName] = useState<string>("");
 
-  <div>
-    <h3>События</h3>
-    <ul>
-      {events.map((event) => {
-        return (
-          <li>
-            {event.date.getDate()} : {event.title}
-          </li>
-        );
-      })}
-    </ul>
-  </div>;
+  // <div>
+  //   <h3>События</h3>
+  //   <ul>
+  //     {events.map((event) => {
+  //       return (
+  //         <li>
+  //           {event.date.getDate()} : {event.title}
+  //         </li>
+  //       );
+  //     })}
+  //   </ul>
+  // </div>;
 
   const handleAddEvent = (): void => {
     if (eventName && date) {
@@ -46,9 +46,12 @@ const CalendarComponent: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Календарь мероприятий</h2>
+    <div className={styles.calendar_wrap}>
       <Calendar
+        prev2Label={null}
+        next2Label={null}
+        defaultValue={new Date()}
+        locale="ru"
         onClickDay={(value) => {
           setDate(value);
           console.log(value);
@@ -58,7 +61,7 @@ const CalendarComponent: React.FC = () => {
           return tileClassName(date);
         }}
       />
-      <form onSubmit={(e): void => e.preventDefault()}>
+      {/* <form onSubmit={(e): void => e.preventDefault()}>
         <input
           type="text"
           value={eventName}
@@ -70,7 +73,7 @@ const CalendarComponent: React.FC = () => {
         <button type="submit" onClick={handleAddEvent}>
           Добавить мероприятие
         </button>
-      </form>
+      </form> */}
     </div>
   );
 };
