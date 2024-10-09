@@ -1,0 +1,24 @@
+.mc {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #D9D9D9;
+  height: 100%;
+  width: 100%;
+  gap: 10px;
+  position: relative;
+
+  span {
+    font-size: 30px;
+  }
+
+  &__data {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}

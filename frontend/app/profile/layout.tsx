@@ -6,7 +6,9 @@ export default function ProfileLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div>
+    <div
+      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    >
       <ProfileBar />
       {children}
     </div>

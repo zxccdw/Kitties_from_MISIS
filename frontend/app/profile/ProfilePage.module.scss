@@ -1,0 +1,22 @@
+.pp {
+  display: flex;
+  gap: 30px;
+
+  &__profilePhoto {
+    width: 260px;
+    height: 260px;
+    background-color: #C4C4C4;
+    border-radius: 20px;
+  }
+
+  &__rest {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+
+    &__head {
+      display: flex;
+      gap: 20px;
+    }
+  }
+}
