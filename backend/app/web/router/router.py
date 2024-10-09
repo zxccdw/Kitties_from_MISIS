@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Path, HTTPException, status, Query
+from fastapi import APIRouter, Path, HTTPException, status, Query, Body
 from typing import List, Optional, Dict
 
 from auth.state import AuthPair
 from auth.handler import signJWT
 from auth.bearer import JWTBearer
 from auth.models import (
-    UserLoginSchema
+    UserLoginSchema,
+    UserRegistrationSchema
 )
 
 from db.manager import DBManager
@@ -18,25 +19,32 @@ from db.manager import DBManager
 
 router = APIRouter(prefix="")
 authpair = AuthPair()
-# db = DBManager("logger")
+db = DBManager("logger")
+db._recreate_tables()
 
 @router.get("/ping")
 async def get_server_status() -> str:
     return "pong"
 
 
-@api.post("/auth/login", tags=["auth"])
+@router.post("/auth/register", tags=["auth"])
+async def register(user: UserRegistrationSchema = Body(...)) -> Dict[str, str]:
+    db.create_user(user)
+    
+    
+
+
+
+@router.post("/auth/login", tags=["auth"])
 async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
-    user: Optional[User] = db.auth(data.email, data.password)
+    user: Optional[User] = db.get_user_by_email(data.email)
     
     if user is None:
         return {"message": "User not found"}
 
+    if 
         
     token = signJWT(user_id)
     authpair.post(token["access_token"], user_id)
     return token
     
-
-# @router.post("/login")
-# async def login() -> str:

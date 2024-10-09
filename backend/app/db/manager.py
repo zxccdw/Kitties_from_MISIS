@@ -21,7 +21,7 @@ class DBManager:
         # self.pg_host = getenv("PG_HOST")
         # self.pg_port = getenv("PG_PORT")
         # self.pg_db = getenv("PG_DB")
-        self.pg_user = "posrgres"
+        self.pg_user = "postgres"
         self.pg_pass = "00000000"
         self.pg_host = "localhost"
         self.pg_port = 5432
@@ -70,8 +70,12 @@ class DBManager:
 
     # endregion ------------
     
+    def user_exists(self, email: int) -> bool:
+        return self.session.query(User).filter_by(email=email).first() is not None
+    
+    
     def get_user_by_email(self, email: str) -> Optional[User]:
-        """Get user password from the database"""
+        """Get user by email from the database"""
         user: Optional[User] = self.session.query(User).filter_by(email=email).one_or_none()
         return user
     

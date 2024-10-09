@@ -16,7 +16,7 @@ import enum
 
 
 Base = declarative_base()
-Base.metadata = MetaData(schema="Kokoc")
+# Base.metadata = MetaData(schema="Kokoc")
 
 class FanRole(enum.Enum):
     default = "default"
@@ -47,7 +47,19 @@ class User(Base):
     event_user_rel = relationship("GameEventUser")
     comment_rel = relationship("Comment")
     publication_rel = relationship("Publication")
+    user_session_rel = relationship("UserSession")
 
+
+class UserSession(Base):
+    __tablename__ = "user_session"
+    
+    id_session = Column(BigInteger, primary_key=True)
+    id_user = Column(BigInteger, ForeignKey("user.id_user"), nullable=False)
+    refresh_token = Column(String(255), nullable=False)
+    expires_at = Column(DateTime(), nullable=False)
+    created_at = Column(DateTime(), nullable=False)
+    last_used_at = Column(DateTime(), nullable=False)
+    
 
 class GameEvent(Base):
     __tablename__ = "event"
@@ -111,4 +123,3 @@ class FootballPlayer(Base):
     second_name = Column(String(255), nullable=False)
     third_name = Column(String(255), nullable=True)
     info = Column(JSON, nullable=False) # JSON type in kraft!!!
-    

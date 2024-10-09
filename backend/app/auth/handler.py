@@ -13,8 +13,14 @@ JWT_ALGORITHM = settings.jwt_algorithm
 JWT_EXPIRE_TIME = settings.jwt_expire_time  # in seconds
 
 
-def token_response(token: str):
+def token_access_response(token: str):
     return {"access_token": token}
+
+def token_response(access_token: str, refresh_token: str):
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }
 
 
 def signJWT(user_id: int) -> Dict[str, str]:
