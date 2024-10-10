@@ -47,24 +47,40 @@ class UserLoginSchema(BaseModel):
         }
 
 
-class UserSessionSchema(BaseModel):
-    id_session: int = Field(...)
-    id_user: int = Field(...)
+# class UserSessionSchema(BaseModel): ???
+#     id_session: int = Field(...)
+#     id_user: int = Field(...)
+#     refresh_token: str = Field(...)
+#     expires_at: datetime = Field(...)
+#     created_at: datetime = Field(...)
+#     last_used_at: datetime = Field(...)
+    
+#     class Config:
+#         orm_mode = True
+#         schema_extra = {
+#             "example": {
+#                 "id_session": 1,
+#                 "id_user": 1,
+#                 "refresh_token": "token",
+#                 "expires_at": "2024-20-07 13:00:00.956741",
+#                 "created_at": "2024-10-07 13:00:00.956741",
+#                 "last_used_at": "2024-10-07 13:00:00.956741"
+#             }
+#         }
+        
+class UserSessionUpdateSchema(BaseModel):
+    access_token: str = Field(...)
+    expires_at: float = Field(...)
     refresh_token: str = Field(...)
-    expires_at: datetime = Field(...)
-    created_at: datetime = Field(...)
-    last_used_at: datetime = Field(...)
+    token_type: str = Field("Bearer")
     
     class Config:
         orm_mode = True
         schema_extra = {
             "example": {
-                "id_session": 1,
-                "id_user": 1,
-                "refresh_token": "token",
+                "access_token": "token",
                 "expires_at": "2024-20-07 13:00:00.956741",
-                "created_at": "2024-10-07 13:00:00.956741",
-                "last_used_at": "2024-10-07 13:00:00.956741"
+                "refresh_token": "token",
+                "token_type": "Bearer",
             }
         }
-        

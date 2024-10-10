@@ -6,10 +6,12 @@ from auth.handler import signJWT, decodeJWT
 from auth.bearer import JWTBearer
 from auth.models import (
     UserLoginSchema,
-    UserRegistrationSchema
+    UserRegistrationSchema,
+    UserSessionUpdateSchema
 )
 from db.manager import DBManager
 from passlib.hash import bcrypt
+from datetime import datetime, timedelta
 
 
 # from schemas.product import Product
@@ -42,16 +44,23 @@ async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
     if user is None:
         return {"message": "User not found"}
     
-    # print(data.password)
-    # data.password = bcrypt.hash(data.password)
-    # print(data.password, user.password)
+    active_tokens = db.get_tokens(user.id_user)
+    if  active_tokens is not None and not decodeJWT(active_tokens["refresh_token"]) is None:
+        return {"message": "Already logged in"}
+    
     if not bcrypt.verify(data.password, user.password):
         return {"message": "Wrong password"}
     
     tokens = signJWT(user.id_user)
     db.add_tokens(user.id_user, tokens)
     authpair.post(user.id_user, tokens)
-    return tokens
+    resp = UserSessionUpdateSchema(
+        access_token=tokens["access_token"],
+        expires_at = tokens["expires_at"],
+        refresh_token=tokens["refresh_token"],
+        token_type="Bearer",
+    )
+    return resp
     
 
 @router.post("/auth/refresh", dependencies=[Depends(JWTBearer())], tags=["auth"])
@@ -64,11 +73,17 @@ async def refresh(token: Dict[str, str] = Body(...)) -> Dict[str, str]:
     tokens = signJWT(user_id)
     authpair.post(user_id, tokens)
     db.add_tokens(user_id, tokens)
-    return tokens
+    return UserSessionUpdateSchema(
+        access_token=tokens["access_token"],
+        expires_at=time.time(),
+        refresh_token=tokens["refresh_token"],
+        token_type="Bearer",
+    )
     
 
 @router.post("/auth/logout", dependencies=[Depends(JWTBearer())], tags=["auth"])
 async def logout(token: Dict[str, str] = Body(...)) -> Dict[str, str]:
+    print(token)
     dec_token = decodeJWT(token["access_token"])
     if dec_token is None:
         return {"message": "Invalid token"}

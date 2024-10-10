@@ -1,8 +1,8 @@
-import time
 from typing import Dict
 from os import getenv
 import jwt
 from shared.settings import app_settings as settings
+import time
 
 # JWT_SECRET = getenv("JWT_SECRET")
 # JWT_ALGORITHM = getenv("JWT_ALGORITHM")
@@ -20,6 +20,7 @@ def token_access_response(token: str):
 def token_response(access_token: str, refresh_token: str):
     return {
         "access_token": access_token,
+        "expires_at": time.time() + JWT_ACCESS_EXPIRE_TIME,
         "refresh_token": refresh_token,
     }
 

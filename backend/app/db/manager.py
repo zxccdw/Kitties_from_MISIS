@@ -1,8 +1,7 @@
 import asyncio
 import json
 import string
-from random import choice
-from datetime import date, datetime, timedelta
+from datetime import datetime
 from os import getenv
 from time import sleep, mktime
 from sqlalchemy.orm import sessionmaker
@@ -94,29 +93,37 @@ class DBManager:
     
     
     def add_tokens(self, id_user: int, tokens: Dict[str, str]) -> None:
+        """Add or update tokens in the database"""
         if self.tokens_exists(id_user):
-            resp = self.session.update(UserSession).where(UserSession.id_user == id_user).values(
+            self.session.query(UserSession).filter_by(id_user=id_user).update(
+                {
+                    UserSession.refresh_token: tokens["refresh_token"],
+                    UserSession.access_token: tokens["access_token"],
+                    UserSession.created_at: datetime.now(),
+                    UserSession.last_used_at: datetime.now(),
+                }
+            )
+        else:
+            new_tokens = UserSession(
+                id_user=id_user,
                 refresh_token=tokens["refresh_token"],
                 access_token=tokens["access_token"],
                 created_at=datetime.now(),
                 last_used_at=datetime.now(),
             )
-            self.session.execute(resp)
-            self.session.commit()
-            return
-            
-        new_tokens = UserSession(
-            id_user=id_user,
-            refresh_token=tokens["refresh_token"],
-            access_token=tokens["access_token"],
-            created_at=datetime.now(),
-            last_used_at=datetime.now(),
-        )
-            
-        self.session.add(new_tokens)
+            self.session.add(new_tokens)
         self.session.commit()
-        return
     
+    def get_tokens(self, id_user: int) -> Optional[Dict[str, str]]:
+        """Get tokens by user_id from the database"""
+        tokens = self.session.query(UserSession).filter_by(id_user=id_user).first()
+        if tokens is None:
+            return None
+        
+        return {
+            "access_token": tokens.access_token,
+            "refresh_token": tokens.refresh_token
+        }
 
     def get_users_test(self) -> dict:
         """Get all users from the database"""

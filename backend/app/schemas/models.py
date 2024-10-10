@@ -37,8 +37,8 @@ class GameEventSchema(BaseModel):
     id_event: int = Field(...)
     title: str = Field(...)
     description: str = Field(...)
-    start_date: datetime = Field(...) # unix time
-    end_date: Optional[datetime] = Field(None) # unix time
+    start_date: datetime = Field(...)
+    end_date: Optional[datetime] = Field(None)
     people_limit: Optional[int] = Field(None)
     location: Optional[str] = Field(None)
     stream_url: Optional[str] = Field(None)
@@ -99,3 +99,5 @@ class CommentSchema(BaseModel):
                 "date": "2024-10-07 13:00:00.956741"
             }
         }
+        
+
