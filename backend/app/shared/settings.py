@@ -17,8 +17,13 @@ class AppSettings(BaseSettings):
     
     jwt_secret: str = "secret"
     jwt_algorithm: str = "HS256"
+<<<<<<< Updated upstream
     jwt_access_expire_time: int = 3600  # in seconds
     jwt_refresh_expire_time: int = 7200  # in seconds
+=======
+    jwt_refresh_expire_time: int = 3600 * 48  # in seconds
+    jwt_access_expire_time: int = 7200  # in seconds
+>>>>>>> Stashed changes
 
     class Config:
         env_prefix = "misis_"

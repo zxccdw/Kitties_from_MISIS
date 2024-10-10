@@ -75,6 +75,7 @@ class DBManager:
         """Get user by email from the database"""
         return self.session.query(User).filter_by(email=email).first() is not None
     
+<<<<<<< Updated upstream
     def create_user(self, user: UserSchema) -> bool:
         if self.user_exists(user.email):
             return False
@@ -84,6 +85,8 @@ class DBManager:
         self.session.commit()
         return True
     
+=======
+>>>>>>> Stashed changes
     def get_user_by_email(self, email: str) -> Optional[User]:
         return self.session.query(User).filter_by(email=email).one_or_none()
     
