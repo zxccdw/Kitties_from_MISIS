@@ -8,8 +8,8 @@ from auth.models import (
     UserLoginSchema,
     UserRegistrationSchema
 )
-
 from db.manager import DBManager
+from passlib.hash import bcrypt
 
 
 # from schemas.product import Product
@@ -29,22 +29,24 @@ async def get_server_status() -> str:
 
 @router.post("/auth/register", tags=["auth"])
 async def register(user: UserRegistrationSchema = Body(...)) -> Dict[str, str]:
-    db.create_user(user)
+    if db.create_user(user):
+        return {"message": "User created"}
     
-    
-
-
+    return {"message": "User already exists"}
 
 @router.post("/auth/login", tags=["auth"])
 async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
     user: Optional[User] = db.get_user_by_email(data.email)
-    
     if user is None:
         return {"message": "User not found"}
-
-    if 
-        
-    token = signJWT(user_id)
-    authpair.post(token["access_token"], user_id)
+    
+    if not bcrypt.verify(data.password, user.hashed_password):
+        return {"message": "Wrong password"}
+    
+    token = signJWT(user.id_user)
+    # Store the token in authpair
+    authpair.post(token["access_token"], user.id_user)
     return token
+    
+    
     

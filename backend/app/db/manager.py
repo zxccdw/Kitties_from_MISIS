@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from typing import List, Union, Optional
 from sqlalchemy.exc import OperationalError as sqlalchemyOpError
 from psycopg2 import OperationalError as psycopg2OpError
+from passlib.hash import bcrypt
 
 from schemas.models import *
 from db.models import *
@@ -71,18 +72,24 @@ class DBManager:
     # endregion ------------
     
     def user_exists(self, email: int) -> bool:
+        """Get user by email from the database"""
         return self.session.query(User).filter_by(email=email).first() is not None
     
+    def create_user(self, user: UserSchema) -> bool:
+        if self.user_exists(user.email):
+            return False
+        new_user = User(**user.dict())
+        new_user.hashed_password = bcrypt.hash(user.password)
+        self.session.add(new_user)
+        self.session.commit()
+        return True
     
     def get_user_by_email(self, email: str) -> Optional[User]:
-        """Get user by email from the database"""
-        user: Optional[User] = self.session.query(User).filter_by(email=email).one_or_none()
-        return user
+        return self.session.query(User).filter_by(email=email).one_or_none()
     
-
-    # def user_exists(self, vk_id: int) -> bool:
-    #     """Check if user exists in the database"""
-    #     return self.session.query(User).filter_by(vk_id=vk_id).first() is not None
+    
+        
+        
 
     # def get_users_test(self) -> dict:
     #     """Get all users from the database"""

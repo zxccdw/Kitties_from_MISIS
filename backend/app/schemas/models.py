@@ -5,7 +5,6 @@ from enum import Enum
 from datetime import datetime
 
 class UserSchema(BaseModel):
-    id_user: int = Field(...)
     first_name: str = Field(...)
     second_name: str = Field(...)
     third_name: Optional[str] = Field(None)
