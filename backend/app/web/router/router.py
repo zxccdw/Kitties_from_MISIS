@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Path, HTTPException, status, Query, Body
+from fastapi import APIRouter, Path, HTTPException, status, Query, Body, Depends
 from typing import List, Optional, Dict
 
 from auth.state import AuthPair
@@ -20,7 +20,7 @@ from passlib.hash import bcrypt
 router = APIRouter(prefix="")
 authpair = AuthPair()
 db = DBManager("logger")
-db._recreate_tables()
+# db._recreate_tables()
 
 @router.get("/ping")
 async def get_server_status() -> str:
@@ -29,6 +29,7 @@ async def get_server_status() -> str:
 
 @router.post("/auth/register", tags=["auth"])
 async def register(user: UserRegistrationSchema = Body(...)) -> Dict[str, str]:
+    print(user.password)
     if not db.create_user(user):
         return {"message": "User already exists"}
     
@@ -41,7 +42,10 @@ async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
     if user is None:
         return {"message": "User not found"}
     
-    if not bcrypt.verify(bcrypt.hash(data.password), user.hashed_password):
+    # print(data.password)
+    # data.password = bcrypt.hash(data.password)
+    # print(data.password, user.password)
+    if not bcrypt.verify(data.password, user.password):
         return {"message": "Wrong password"}
     
     tokens = signJWT(user.id_user)
@@ -78,3 +82,9 @@ async def logout(token: Dict[str, str] = Body(...)) -> Dict[str, str]:
 # secure region
 
 # end secure region
+
+# test region
+@router.get("/test/get_users", tags=["tests"])
+async def get_users_test():
+    return db.get_users_test()
+# end test region

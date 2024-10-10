@@ -37,12 +37,12 @@ class User(Base):
     second_name = Column(String(50), nullable=False)
     third_name = Column(String(50), nullable=True)
     email = Column(String(50), nullable=False, unique=True)
+    password = Column(String(255), nullable=False) # hashed
     date_of_birth = Column(String(10), nullable=True)
     sex = Column(String(10), nullable=True)
     fan_status = Column(Enum(FanRole), default=FanRole.default)
     avatar_url = Column(String(255), nullable=True)
     is_staff = Column(Boolean, default=False)
-    hashed_password = Column(String(255), nullable=False)
     
     event_user_rel = relationship("GameEventUser")
     comment_rel = relationship("Comment")

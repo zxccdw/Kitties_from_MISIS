@@ -78,13 +78,13 @@ class DBManager:
     
     def tokens_exists(self, user_id: int) -> bool:
         """Get tokens by user_id from the database"""
-        return self.session.query(UserSession).filter_by(user_id=user_id).first() is not None
+        return self.session.query(UserSession).filter_by(id_user=user_id).first() is not None
     
     def create_user(self, user: UserSchema) -> bool:
         if self.user_exists(user.email):
             return False
         new_user = User(**user.dict())
-        new_user.hashed_password = bcrypt.hash(user.password)
+        new_user.password = bcrypt.hash(user.password)
         self.session.add(new_user)
         self.session.commit()
         return True
@@ -93,9 +93,9 @@ class DBManager:
         return self.session.query(User).filter_by(email=email).one_or_none()
     
     
-    def add_tokens(self, user_id: int, tokens: Dict[str, str]) -> None:
-        if self.tokens_exists(user_id):
-            resp = self.session.update(UserSession).where(UserSession.user_id == user_id).values(
+    def add_tokens(self, id_user: int, tokens: Dict[str, str]) -> None:
+        if self.tokens_exists(id_user):
+            resp = self.session.update(UserSession).where(UserSession.id_user == id_user).values(
                 refresh_token=tokens["refresh_token"],
                 access_token=tokens["access_token"],
                 created_at=datetime.now(),
@@ -106,7 +106,7 @@ class DBManager:
             return
             
         new_tokens = UserSession(
-            user_id=user_id,
+            id_user=id_user,
             refresh_token=tokens["refresh_token"],
             access_token=tokens["access_token"],
             created_at=datetime.now(),
@@ -118,17 +118,18 @@ class DBManager:
         return
     
 
-    # def get_users_test(self) -> dict:
-    #     """Get all users from the database"""
-    #     users = self.session.query(User).all()
-    #     return {
-    #         user.vk_id: {
-    #             "wallet_public_key": user.wallet_public_key,
-    #             "first_name": user.first_name,
-    #             "last_name": user.last_name,
-    #         }
-    #         for user in users
-    #     }
+    def get_users_test(self) -> dict:
+        """Get all users from the database"""
+        users = self.session.query(User).all()
+        return {
+            user.email: {
+                "user_id": user.id_user,
+                "email": user.email,
+                "first_name": user.first_name,
+                "password": user.password
+            }
+            for user in users
+        }
 
     # def get_users(self) -> dict:
     #     """Get all users from the database"""

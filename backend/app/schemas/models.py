@@ -9,6 +9,7 @@ class UserSchema(BaseModel):
     second_name: str = Field(...)
     third_name: Optional[str] = Field(None)
     email: str = Field(...)
+    password: str = Field(..., min_length=8, max_length=64)
     date_of_birth: Optional[str] = Field(None)
     sex: str = Field(None)
     fan_status: Optional[str] = Field(None)
@@ -24,6 +25,7 @@ class UserSchema(BaseModel):
                 "first_name": "Ivan",
                 "second_name": "Ivanov",
                 "email": "example@example.com",
+                "password": "exampleexample",
                 "sex": "male",
                 "fan_status": "default",
                 "is_staff": False
