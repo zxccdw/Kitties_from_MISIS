@@ -1,0 +1,20 @@
+anyio @ file:///home/conda/feedstock_root/build_artifacts/anyio_1726931217849/work
+beautifulsoup4==4.12.3
+certifi==2024.8.30
+charset-normalizer==3.4.0
+click @ file:///home/conda/feedstock_root/build_artifacts/click_1692311806742/work
+exceptiongroup @ file:///home/conda/feedstock_root/build_artifacts/exceptiongroup_1720869315914/work
+fastapi @ file:///home/conda/feedstock_root/build_artifacts/fastapi_1676407540585/work
+greenlet @ file:///Users/runner/miniforge3/conda-bld/greenlet_1726922212101/work
+h11 @ file:///home/conda/feedstock_root/build_artifacts/h11_1664132893548/work
+idna @ file:///home/conda/feedstock_root/build_artifacts/idna_1726459485162/work
+loguru @ file:///Users/runner/miniforge3/conda-bld/loguru_1666819069350/work
+pydantic @ file:///Users/runner/miniforge3/conda-bld/pydantic_1666755013609/work
+requests==2.32.3
+sniffio @ file:///home/conda/feedstock_root/build_artifacts/sniffio_1708952932303/work
+soupsieve==2.6
+starlette @ file:///home/conda/feedstock_root/build_artifacts/starlette-recipe_1676402644778/work
+typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1717802530399/work
+urllib3==2.2.3
+uvicorn @ file:///Users/runner/miniforge3/conda-bld/uvicorn-split_1669234759377/work
+wikipedia==1.4.0
