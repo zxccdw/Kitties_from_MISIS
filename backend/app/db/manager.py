@@ -7,10 +7,11 @@ from os import getenv
 from time import sleep, mktime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Dict
 from sqlalchemy.exc import OperationalError as sqlalchemyOpError
 from psycopg2 import OperationalError as psycopg2OpError
 from passlib.hash import bcrypt
+from shared.settings import app_settings
 
 from schemas.models import *
 from db.models import *
@@ -75,7 +76,10 @@ class DBManager:
         """Get user by email from the database"""
         return self.session.query(User).filter_by(email=email).first() is not None
     
-<<<<<<< Updated upstream
+    def tokens_exists(self, user_id: int) -> bool:
+        """Get tokens by user_id from the database"""
+        return self.session.query(UserSession).filter_by(user_id=user_id).first() is not None
+    
     def create_user(self, user: UserSchema) -> bool:
         if self.user_exists(user.email):
             return False
@@ -85,14 +89,34 @@ class DBManager:
         self.session.commit()
         return True
     
-=======
->>>>>>> Stashed changes
     def get_user_by_email(self, email: str) -> Optional[User]:
         return self.session.query(User).filter_by(email=email).one_or_none()
     
     
-        
-        
+    def add_tokens(self, user_id: int, tokens: Dict[str, str]) -> None:
+        if self.tokens_exists(user_id):
+            resp = self.session.update(UserSession).where(UserSession.user_id == user_id).values(
+                refresh_token=tokens["refresh_token"],
+                access_token=tokens["access_token"],
+                created_at=datetime.now(),
+                last_used_at=datetime.now(),
+            )
+            self.session.execute(resp)
+            self.session.commit()
+            return
+            
+        new_tokens = UserSession(
+            user_id=user_id,
+            refresh_token=tokens["refresh_token"],
+            access_token=tokens["access_token"],
+            created_at=datetime.now(),
+            last_used_at=datetime.now(),
+        )
+            
+        self.session.add(new_tokens)
+        self.session.commit()
+        return
+    
 
     # def get_users_test(self) -> dict:
     #     """Get all users from the database"""

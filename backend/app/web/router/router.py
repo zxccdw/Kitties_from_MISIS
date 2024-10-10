@@ -2,7 +2,7 @@ from fastapi import APIRouter, Path, HTTPException, status, Query, Body
 from typing import List, Optional, Dict
 
 from auth.state import AuthPair
-from auth.handler import signJWT
+from auth.handler import signJWT, decodeJWT
 from auth.bearer import JWTBearer
 from auth.models import (
     UserLoginSchema,
@@ -29,10 +29,11 @@ async def get_server_status() -> str:
 
 @router.post("/auth/register", tags=["auth"])
 async def register(user: UserRegistrationSchema = Body(...)) -> Dict[str, str]:
-    if db.create_user(user):
-        return {"message": "User created"}
+    if not db.create_user(user):
+        return {"message": "User already exists"}
     
-    return {"message": "User already exists"}
+    return {"message": "User created"}
+    
 
 @router.post("/auth/login", tags=["auth"])
 async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
@@ -40,13 +41,40 @@ async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
     if user is None:
         return {"message": "User not found"}
     
-    if not bcrypt.verify(data.password, user.hashed_password):
+    if not bcrypt.verify(bcrypt.hash(data.password), user.hashed_password):
         return {"message": "Wrong password"}
     
-    token = signJWT(user.id_user)
-    # Store the token in authpair
-    authpair.post(token["access_token"], user.id_user)
-    return token
+    tokens = signJWT(user.id_user)
+    db.add_tokens(user.id_user, tokens)
+    authpair.post(user.id_user, tokens)
+    return tokens
     
+
+@router.post("/auth/refresh", dependencies=[Depends(JWTBearer())], tags=["auth"])
+async def refresh(token: Dict[str, str] = Body(...)) -> Dict[str, str]:
+    dec_token = decodeJWT(token["refresh_token"])
+    if dec_token is None:
+        return {"message": "Invalid token"}
     
+    user_id = dec_token["user_id"]
+    tokens = signJWT(user_id)
+    authpair.post(user_id, tokens)
+    db.add_tokens(user_id, tokens)
+    return tokens
     
+
+@router.post("/auth/logout", dependencies=[Depends(JWTBearer())], tags=["auth"])
+async def logout(token: Dict[str, str] = Body(...)) -> Dict[str, str]:
+    dec_token = decodeJWT(token["access_token"])
+    if dec_token is None:
+        return {"message": "Invalid token"}
+    
+    user_id = dec_token["user_id"]
+    tokens = signJWT(user_id)
+    authpair.post(user_id, tokens)
+    db.add_tokens(user_id, tokens)
+    return {"message": "Tokens deleted"}
+
+# secure region
+
+# end secure region

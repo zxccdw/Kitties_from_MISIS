@@ -10,7 +10,8 @@ from shared.settings import app_settings as settings
 
 JWT_SECRET = settings.jwt_secret
 JWT_ALGORITHM = settings.jwt_algorithm
-JWT_EXPIRE_TIME = settings.jwt_expire_time  # in seconds
+JWT_SUCCESS_EXPIRE_TIME = settings.jwt_success_expire_time  # in seconds
+JWT_REFRESH_EXPIRE_TIME = settings.jwt_refresh_expire_time  # in seconds
 
 
 def token_access_response(token: str):
@@ -24,10 +25,13 @@ def token_response(access_token: str, refresh_token: str):
 
 
 def signJWT(user_id: int) -> Dict[str, str]:
-    payload = {"user_id": user_id, "expires": time.time() + JWT_EXPIRE_TIME}
-    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-
-    return token_response(token)
+    access_payload = {"user_id": user_id, "expires": time.time() + JWT_SUCCESS_EXPIRE_TIME}
+    access_token = jwt.encode(access_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    
+    refresh_payload = {"user_id": user_id, "expires": time.time() + JWT_REFRESH_EXPIRE_TIME}
+    refresh_token = jwt.encode(refresh_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    
+    return token_response(access_token, refresh_token)
 
 
 def decodeJWT(token: str) -> dict:
