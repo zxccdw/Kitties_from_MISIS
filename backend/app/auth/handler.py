@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 from os import getenv
 import jwt
 from shared.settings import app_settings as settings
@@ -26,18 +26,18 @@ def token_response(access_token: str, refresh_token: str):
 
 
 def signJWT(id_user: int) -> Dict[str, str]:
-    access_payload = {"id_user": id_user, "expires": time.time() + JWT_ACCESS_EXPIRE_TIME}
+    access_payload = {"expires": time.time() + JWT_ACCESS_EXPIRE_TIME, "token_type": "access"}
     access_token = jwt.encode(access_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     
-    refresh_payload = {"id_user": id_user, "expires": time.time() + JWT_REFRESH_EXPIRE_TIME}
+    refresh_payload = {"id_user": id_user, "expires": time.time() + JWT_REFRESH_EXPIRE_TIME, "token_type": "refresh"}
     refresh_token = jwt.encode(refresh_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     
     return token_response(access_token, refresh_token)
 
 
-def decodeJWT(token: str) -> dict:
+def decodeJWT(token: str) -> Optional[Dict[str, str]]:
     try:
         decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         return decoded_token if decoded_token["expires"] >= time.time() else None
     except:
-        return {}
+        return None

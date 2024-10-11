@@ -79,7 +79,7 @@ class UserSessionUpdateSchema(BaseModel):
         schema_extra = {
             "example": {
                 "access_token": "token",
-                "expires_at": "2024-20-07 13:00:00.956741",
+                "expires_at": "12234.4324",
                 "refresh_token": "token",
                 "token_type": "Bearer",
             }

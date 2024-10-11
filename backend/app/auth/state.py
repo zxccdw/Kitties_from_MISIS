@@ -1,13 +1,18 @@
-from typing import Any, Dict, List
-
+from typing import Any, Dict, List, Optional
 
 class AuthPair:
     def __init__(self):
-        self.store: Dict[int, List[str]] = {}  # {user_id: [access_token, refresh_token]}
-
-    def post(self, id_user, tokens: Dict[str, str]):
-        self.store[id_user] = [tokens["access_token"], tokens["refresh_token"]]
-
-    def get(self, id_user) -> Any:
-        return self.store.get(id_user)
-
+        self.store: Dict[str, int] = {}
+    
+    def post(self, access_token: str, id_user: int):
+        self.store[access_token] = id_user
+    
+    def get(self, access_token: str) -> Optional[int]:
+        return self.store.get(access_token)
+    
+    def pop(self, access_token: str) -> Optional[int]:
+        return self.store.pop(access_token)
+    
+    def get_store_test(self):
+        return self.store
+    

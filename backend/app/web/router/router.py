@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Path, HTTPException, status, Query, Body, Depends
+from fastapi import APIRouter, Path, HTTPException, status, Query, Body, dependencies, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from typing import List, Optional, Dict
 
 from auth.state import AuthPair
@@ -12,6 +13,7 @@ from auth.models import (
 from db.manager import DBManager
 from passlib.hash import bcrypt
 from datetime import datetime, timedelta
+import time
 
 
 # from schemas.product import Product
@@ -22,7 +24,7 @@ from datetime import datetime, timedelta
 router = APIRouter(prefix="")
 authpair = AuthPair()
 db = DBManager("logger")
-# db._recreate_tables()
+db._recreate_tables()
 
 @router.get("/ping")
 async def get_server_status() -> str:
@@ -31,7 +33,6 @@ async def get_server_status() -> str:
 
 @router.post("/auth/register", tags=["auth"])
 async def register(user: UserRegistrationSchema = Body(...)) -> Dict[str, str]:
-    print(user.password)
     if not db.create_user(user):
         return {"message": "User already exists"}
     
@@ -52,45 +53,48 @@ async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
         return {"message": "Wrong password"}
     
     tokens = signJWT(user.id_user)
+    # print("new user tokens {}".format(tokens))
     db.add_tokens(user.id_user, tokens)
-    authpair.post(user.id_user, tokens)
+    authpair.post(tokens["access_token"], user.id_user)
     resp = UserSessionUpdateSchema(
         access_token=tokens["access_token"],
         expires_at = tokens["expires_at"],
         refresh_token=tokens["refresh_token"],
-        token_type="Bearer",
     )
     return resp
     
 
 @router.post("/auth/refresh", dependencies=[Depends(JWTBearer())], tags=["auth"])
-async def refresh(token: Dict[str, str] = Body(...)) -> Dict[str, str]:
-    dec_token = decodeJWT(token["refresh_token"])
-    if dec_token is None:
+async def refresh(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
+    ''' Create new access and refresh tokens by refresh token'''
+    dec_token = decodeJWT(token)
+    if dec_token is None or dec_token["token_type"] != "refresh":
         return {"message": "Invalid token"}
     
-    user_id = dec_token["user_id"]
+    user_id = dec_token["id_user"]
+    tokens = db.get_tokens(user_id)
+    authpair.pop(tokens["access_token"])
+    
     tokens = signJWT(user_id)
-    authpair.post(user_id, tokens)
     db.add_tokens(user_id, tokens)
+    authpair.post(tokens["access_token"], user_id)
     return UserSessionUpdateSchema(
         access_token=tokens["access_token"],
         expires_at=time.time(),
         refresh_token=tokens["refresh_token"],
-        token_type="Bearer",
     )
     
-
-@router.post("/auth/logout", dependencies=[Depends(JWTBearer())], tags=["auth"])
-async def logout(token: Dict[str, str] = Body(...)) -> Dict[str, str]:
-    print(token)
-    dec_token = decodeJWT(token["access_token"])
-    if dec_token is None:
+@router.post("/auth/logout", dependencies=[Depends(JWTBearer())], tags=["auth"]) # TODO подумать над перебоями сервера - autpair пустой
+async def logout(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
+    decoded_info = decodeJWT(token)
+    if decoded_info is None or decoded_info["token_type"] != "access":
+        return {"message": "Invalid token"}
+    user_id = authpair.get(token)
+    if user_id is None:
         return {"message": "Invalid token"}
     
-    user_id = dec_token["user_id"]
+    authpair.pop(token)
     tokens = signJWT(user_id)
-    authpair.post(user_id, tokens)
     db.add_tokens(user_id, tokens)
     return {"message": "Tokens deleted"}
 
