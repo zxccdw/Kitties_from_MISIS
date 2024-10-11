@@ -7,9 +7,14 @@ from auth.handler import signJWT, decodeJWT
 from auth.bearer import JWTBearer
 from auth.models import (
     UserLoginSchema,
-    UserRegistrationSchema,
     UserSessionUpdateSchema
 )
+
+from schemas.models import (
+    UserSchema,
+    GameEventSchema
+)
+
 from db.manager import DBManager
 from passlib.hash import bcrypt
 from datetime import datetime, timedelta
@@ -24,15 +29,15 @@ import time
 router = APIRouter(prefix="")
 authpair = AuthPair()
 db = DBManager("logger")
-db._recreate_tables()
+# db._recreate_tables()
 
 @router.get("/ping")
 async def get_server_status() -> str:
     return "pong"
 
-
+# region auth
 @router.post("/auth/register", tags=["auth"])
-async def register(user: UserRegistrationSchema = Body(...)) -> Dict[str, str]:
+async def register(user: UserSchema = Body(...)) -> Dict[str, str]:
     if not db.create_user(user):
         return {"message": "User already exists"}
     
@@ -41,7 +46,7 @@ async def register(user: UserRegistrationSchema = Body(...)) -> Dict[str, str]:
 
 @router.post("/auth/login", tags=["auth"])
 async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
-    user: Optional[User] = db.get_user_by_email(data.email)
+    user: Optional[UserSchema] = db.get_user_by_email(data.email)
     if user is None:
         return {"message": "User not found"}
     
@@ -73,6 +78,8 @@ async def refresh(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) ->
     
     user_id = dec_token["id_user"]
     tokens = db.get_tokens(user_id)
+    if tokens["refresh_token"] != token:
+        return {"message": "Invalid token"}
     authpair.pop(tokens["access_token"])
     
     tokens = signJWT(user_id)
@@ -98,9 +105,24 @@ async def logout(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> 
     db.add_tokens(user_id, tokens)
     return {"message": "Tokens deleted"}
 
-# secure region
+# end region auth
 
-# end secure region
+# region events
+@router.get("/events", tags=["events"]) # hz
+async def get_events(max_events: int = 5) -> List[GameEventSchema]:
+    if max_events <= 0:
+        max_events = 5
+    return db.get_events(max_events=max_events)
+
+@router.post("/events", tags=["events"])
+async def add_event(event: GameEventSchema = Body(...)) -> Dict[str, str]:
+    db.add_event(event)
+    return {"message": "Event created"}
+# end region events
+
+# region secure
+
+# end region secure
 
 # test region
 @router.get("/test/get_users", tags=["tests"])

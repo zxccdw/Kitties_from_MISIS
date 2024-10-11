@@ -3,35 +3,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from typing import Optional
 from enum import Enum
 from datetime import datetime
-
-
-class UserRegistrationSchema(BaseModel):
-    first_name: str = Field(...)
-    second_name: str = Field(...)
-    third_name: Optional[str] = Field(None)
-    email: str = Field(...)
-    password: str = Field(..., min_length=8, max_length=64)
-    date_of_birth: Optional[str] = Field(None)
-    sex: str = Field(None)
-    fan_status: Optional[str] = Field(None)
-    avatar_url: Optional[str] = Field(None)
-    password: str = Field(..., min_length=8, max_length=64)
-
-    class Config:
-        orm_mode = True
-        schema_extra = {
-            "example": {
-                "first_name": "Ivan",
-                "second_name": "Ivanov",
-                "email": "example@example.com",
-                "password": "exampleexample",
-                "sex": "male",
-                "fan_status": "default",
-                "avatar_url": "https://example.com/avatar.jpg",
-                "password": "example"
-            }
-        }
-        
         
 class UserLoginSchema(BaseModel):
     email: str = Field(...)

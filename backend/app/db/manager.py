@@ -5,14 +5,18 @@ from datetime import datetime
 from os import getenv
 from time import sleep, mktime
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from typing import List, Union, Optional, Dict
 from sqlalchemy.exc import OperationalError as sqlalchemyOpError
 from psycopg2 import OperationalError as psycopg2OpError
 from passlib.hash import bcrypt
 from shared.settings import app_settings
 
-from schemas.models import *
+from schemas.models import (
+    UserSchema,
+    GameEventSchema
+)
+
 from db.models import *
 
 class DBManager:
@@ -88,7 +92,7 @@ class DBManager:
         self.session.commit()
         return True
     
-    def get_user_by_email(self, email: str) -> Optional[User]:
+    def get_user_by_email(self, email: str) -> Optional[UserSchema]:
         return self.session.query(User).filter_by(email=email).one_or_none()
     
     
@@ -138,6 +142,19 @@ class DBManager:
             for user in users
         }
 
+    def get_events(self, max_events: int) -> List[GameEventSchema]: # hz
+        events = self.session.query(GameEvent).order_by(desc(GameEvent.start_date)).limit(max_events).all()
+        ar: List[GameEventSchema] = []
+        for event in events:
+            ar.append(GameEventSchema.from_orm(event))
+            
+        return ar            
+    def add_event(self, event: GameEventSchema) -> None:
+        game_event = GameEvent(**event.dict())
+        self.session.add(game_event)
+        self.session.commit()  
+        
+              
     # def get_users(self) -> dict:
     #     """Get all users from the database"""
     #     users = self.session.query(User).all()
