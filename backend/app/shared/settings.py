@@ -12,8 +12,14 @@ class AppSettings(BaseSettings):
 
     uvicorn_host: str = "localhost"
     uvicorn_port: int = 8000
-    uvicorn_workers: int = mp.cpu_count() * 2
+    uvicorn_workers: int = 1 # mp.cpu_count() * 2
     uvicorn_log_level: str = "WARNING"
+    
+    jwt_secret: str = "secret"
+    jwt_algorithm: str = "HS256"
+
+    jwt_refresh_expire_time: int = 3600 * 48  # in seconds
+    jwt_access_expire_time: int = 7200  # in seconds
 
     class Config:
         env_prefix = "misis_"
