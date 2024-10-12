@@ -50,9 +50,11 @@ async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
     if user is None:
         return {"message": "User not found"}
     
-    active_tokens = db.get_tokens(user.id_user)
-    if  active_tokens is not None and not decodeJWT(active_tokens["refresh_token"]) is None:
-        return {"message": "Already logged in"}
+    active_tokens_in_db = db.get_tokens(user.id_user)
+    active_tokens_in_cookies = authpair.get(active_tokens_in_db["access_token"])
+    
+    if active_tokens_in_cookies is not None and decodeJWT(active_tokens_in_cookies) is not None:
+            return {"message": "User already logged in"}
     
     if not bcrypt.verify(data.password, user.password):
         return {"message": "Wrong password"}
@@ -80,6 +82,7 @@ async def refresh(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) ->
     tokens = db.get_tokens(user_id)
     if tokens["refresh_token"] != token:
         return {"message": "Invalid token"}
+    
     authpair.pop(tokens["access_token"])
     
     tokens = signJWT(user_id)
@@ -96,6 +99,7 @@ async def logout(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> 
     decoded_info = decodeJWT(token)
     if decoded_info is None or decoded_info["token_type"] != "access":
         return {"message": "Invalid token"}
+    
     user_id = authpair.get(token)
     if user_id is None:
         return {"message": "Invalid token"}
