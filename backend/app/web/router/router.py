@@ -111,21 +111,75 @@ async def logout(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> 
 
 # end region auth
 
-# region events
-@router.get("/events", tags=["events"]) # hz
-async def get_events(max_events: int = 5) -> List[GameEventSchema]:
+@router.get("/user/profile", tags=["user"])
+async def get_user_by_email(user_email: str = Query(None)) -> Dict[int, dict]:
+    result = db.get_user_by_email(user_id)
+    return {
+        "email": result.email,
+        "first_name": result.first_name,
+        "second_name": result.second_name,
+        "third_name": result.third_name,
+        "sex": result.sex,
+        "date_of_birth": result.date_of_birth
+    }
+
+@router.get("/events/get", tags=["events"]) # hz
+async def get_events(max_events: int = 5) -> Dict[int, dict]:
     if max_events <= 0:
         max_events = 5
     return db.get_events(max_events=max_events)
 
-@router.post("/events", tags=["events"])
-async def add_event(event: GameEventSchema = Body(...)) -> Dict[str, str]:
-    db.add_event(event)
-    return {"message": "Event created"}
-# end region events
+@router.get("/events/get", tags=["tests"])
+async def get_event_by_id(event_id: int) -> Dict[int, dict]:
+    return db.get_event(event_id)
+
 
 # region secure
+@router.post("/events/add", dependencies=[Depends(JWTBearer())], tags=["events"])
+async def add_event(event: GameEventSchema = Body(...), token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
+    if decodeJWT(token) is None or decodeJWT(token)["token_type"] != "access":
+        return {"message": "Invalid token"}
 
+    user_id = authpair.get(token)
+    if user_id is None:
+        return {"message": "Invalid token"}
+    
+    if not db.is_admin(user_id):
+        return {"message": "User is not admin"}
+    
+    db.add_event(event)
+    return {"message": "Event created"}
+
+@router.post("/events/update", dependencies=[Depends(JWTBearer())], tags=["events"])
+async def update_event(event_id: int, event: GameEventSchema = Body(...), token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
+    if decodeJWT(token) is None or decodeJWT(token)["token_type"] != "access":
+        return {"message": "Invalid token"}
+
+    user_id = authpair.get(token)
+    if user_id is None:
+        return {"message": "Invalid token"}
+    
+    if not db.is_admin(user_id):
+        return {"message": "User is not admin"}
+    
+    db.update_event(event_id, event)
+    return {"message": "Event updated"}
+
+@router.post("events/sign", dependencies=[Depends(JWTBearer())], tags=["events"])
+async def sign_user_to_event(event_id: int, token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
+    if decodeJWT(token) is None or decodeJWT(token)["token_type"] != "access":
+        return {"message": "Invalid token"}
+    
+    user_id = authpair.get(token)
+    if user_id is None:
+        return {"message": "Invalid token"}
+    
+    if gb.sign_user_to_event(user_id, event_id):
+        return {"message": "User signed"}
+    
+    return {"message": "User not signed"}
+    
+    
 # end region secure
 
 # test region

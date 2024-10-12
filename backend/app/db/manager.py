@@ -95,6 +95,15 @@ class DBManager:
     def get_user_by_email(self, email: str) -> Optional[UserSchema]:
         return self.session.query(User).filter_by(email=email).one_or_none()
     
+    def is_admin(self, user_id: int) -> bool:
+        return self.session.query(User).filter_by(id_user=user_id, is_admin=True).first() is not None
+    
+    def add_admin(self, user_id: int) -> None:
+        if self.user_exists(user_id):
+            self.session.query(User).filter_by(id_user=user_id).update(
+                {User.is_admin: True}
+            )
+            self.session.commit()
     
     def add_tokens(self, id_user: int, tokens: Dict[str, str]) -> None:
         """Add or update tokens in the database"""
@@ -129,7 +138,10 @@ class DBManager:
             "refresh_token": tokens.refresh_token
         }
 
-    def get_users_test(self) -> Dict[int, dict]:
+    def event_exists(self, id_event: int) -> bool:
+        return self.session.query(GameEvent).filter_by(id_event=id_event).first() is not None
+    
+    def get_users_test(self) -> Dict[int, dict]: # test function
         """Get all users from the database"""
         users = self.session.query(User).all()
         return {
@@ -144,19 +156,74 @@ class DBManager:
             for user in users
         }
 
-    def get_events(self, max_events: int) -> List[GameEventSchema]: # hz
+    def get_events(self, max_events: int) -> Dict[int, dict]: # hz
         events = self.session.query(GameEvent).order_by(desc(GameEvent.start_date)).limit(max_events).all()
         ar: List[GameEventSchema] = []
-        for event in events:
-            ar.append(GameEventSchema.from_orm(event))
-            
-        return ar            
+        return {
+            event.id_event: {
+                "description": event.description,
+                "title": event.title,
+                "start_date": event.start_date,
+                "end_date": event.end_date,
+                "people_limit": event.people_limit,
+                "location": event.location,
+                "stream_url": event.stream_url
+            }
+            for event in events
+        }
+        
+    def get_event(self, id_event: int) -> Dict[int, dict]:
+        if self.event_exists(id_event):
+            event = self.session.query(GameEvent).filter_by(id_event=id_event).one()
+            return {
+                event.id_event: {
+                    "description": event.description,
+                    "title": event.title,
+                    "start_date": event.start_date,
+                    "end_date": event.end_date,
+                    "people_limit": event.people_limit,
+                    "location": event.location,
+                    "stream_url": event.stream_url
+                }
+            }
+        
     def add_event(self, event: GameEventSchema) -> None:
         game_event = GameEvent(**event.dict())
         self.session.add(game_event)
         self.session.commit()  
         
-              
+    def update_event(self, event: GameEventSchema) -> None:
+        if self.event_exists(event.id_event):
+            self.session.query(GameEvent).filter_by(id_event=event.id_event).update(
+                {
+                    GameEvent.title: event.title,
+                    GameEvent.description: event.description,
+                    GameEvent.start_date: event.start_date,
+                    GameEvent.end_date: event.end_date,
+                    GameEvent.people_limit: event.people_limit,
+                    GameEvent.location: event.location,
+                    GameEvent.stream_url: event.stream_url
+                }
+            )
+            self.session.commit()
+            
+    def sign_user_to_event(self, user_id: int, event_id: int) -> bool:
+        event_info = self.get_event(event_id)
+        if event_info is None:
+            return False
+        
+        if event_info["end_date"] < datetime.now():
+            return False
+        
+        signed_user = GameEventSchema(
+            id_user=user_id,
+            id_event=event_id,
+            created_at=datetime.now(),
+        )
+        self.session.add(signed_user)
+        self.session.commit()
+        return True
+        
     # def get_users(self) -> dict:
     #     """Get all users from the database"""
     #     users = self.session.query(User).all()
