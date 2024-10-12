@@ -129,15 +129,17 @@ class DBManager:
             "refresh_token": tokens.refresh_token
         }
 
-    def get_users_test(self) -> dict:
+    def get_users_test(self) -> Dict[int, dict]:
         """Get all users from the database"""
         users = self.session.query(User).all()
         return {
-            user.email: {
-                "user_id": user.id_user,
+            user.id_user: {
                 "email": user.email,
-                "first_name": user.first_name,
-                "password": user.password
+                "password": user.password,
+                "fist_name": user.first_name,
+                "second_name": user.second_name,
+                "sex": user.sex,
+                "date_of_birth": user.date_of_birth   
             }
             for user in users
         }

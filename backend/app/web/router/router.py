@@ -69,7 +69,7 @@ async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
     return resp
     
 
-@router.post("/auth/refresh", dependencies=[Depends(JWTBearer())], tags=["auth"])
+@router.post("/auth/refresh", dependencies=[Depends(JWTBearer())], tags=["auth"]) # TODO bugfix auth
 async def refresh(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
     ''' Create new access and refresh tokens by refresh token'''
     dec_token = decodeJWT(token)
@@ -126,6 +126,6 @@ async def add_event(event: GameEventSchema = Body(...)) -> Dict[str, str]:
 
 # test region
 @router.get("/test/get_users", tags=["tests"])
-async def get_users_test():
+async def get_users_test() -> Dict[int, dict]:
     return db.get_users_test()
 # end test region

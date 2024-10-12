@@ -1,19 +1,20 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Optional
 from enum import Enum
 from datetime import datetime
+import re
 
-class UserSchema(BaseModel):
-    first_name: str = Field(...)
-    second_name: str = Field(...)
-    third_name: Optional[str] = Field(None)
-    email: str = Field(...)
+class UserSchema(BaseModel): # TODO add validation
+    first_name: str = Field(..., min_length=2, max_length=50)
+    second_name: str = Field(..., min_length=2, max_length=50)
+    third_name: Optional[str] = Field(None, min_length=2, max_length=50)
+    email: EmailStr = Field(..., unique=True)
     password: str = Field(..., min_length=8, max_length=64)
-    date_of_birth: Optional[str] = Field(None)
-    sex: str = Field(None)
-    fan_status: Optional[str] = Field(None)
-    avatar_url: Optional[str] = Field(None)
+    date_of_birth: Optional[str] = Field(None, regex=r"^\d{2}-\d{2}-\d{4}$")
+    sex: str = Field("male", regex=r"^(male|female)$")
+    fan_status: Optional[str] = Field("default", regex=r"^(default|fan|super_fan)$")
+    avatar_url: Optional[str] = Field(None, url=True)
     is_staff: bool = Field(False)
 
     class Config:

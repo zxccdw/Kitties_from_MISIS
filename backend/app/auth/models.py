@@ -1,11 +1,11 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Optional
 from enum import Enum
 from datetime import datetime
         
 class UserLoginSchema(BaseModel):
-    email: str = Field(...)
+    email: EmailStr = Field(...)
     password: str = Field(..., min_length=8, max_length=64)
 
     class Config:
