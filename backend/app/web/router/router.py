@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Path, HTTPException, status, Query, Body, dependencies, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 from auth.state import AuthPair
 from auth.handler import signJWT, decodeJWT
@@ -31,7 +31,7 @@ authpair = AuthPair()
 db = DBManager("logger")
 # db._recreate_tables()
 
-@router.get("/ping")
+@router.get("/ping", tags=["tests"])
 async def get_server_status() -> str:
     return "pong"
 
@@ -111,9 +111,11 @@ async def logout(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> 
 
 # end region auth
 
-@router.get("/user/profile", tags=["user"])
-async def get_user_by_email(user_email: str = Query(None)) -> Dict[int, dict]:
-    result = db.get_user_by_email(user_id)
+@router.get("/user/profile/{user_email}", tags=["user"])
+async def get_user_by_email(user_email: str = Query(...)) -> Dict[str, Any]:
+    result = db.get_user_by_email(user_email)
+    if result is None:
+        return {"message": "User not found"}
     return {
         "email": result.email,
         "first_name": result.first_name,
@@ -123,13 +125,14 @@ async def get_user_by_email(user_email: str = Query(None)) -> Dict[int, dict]:
         "date_of_birth": result.date_of_birth
     }
 
+
 @router.get("/events/get", tags=["events"]) # hz
 async def get_events(max_events: int = 5) -> Dict[int, dict]:
     if max_events <= 0:
         max_events = 5
     return db.get_events(max_events=max_events)
 
-@router.get("/events/get", tags=["tests"])
+@router.get("/events/get/{event_id}", tags=["events"])
 async def get_event_by_id(event_id: int) -> Dict[int, dict]:
     return db.get_event(event_id)
 
@@ -150,7 +153,7 @@ async def add_event(event: GameEventSchema = Body(...), token: HTTPAuthorization
     db.add_event(event)
     return {"message": "Event created"}
 
-@router.post("/events/update", dependencies=[Depends(JWTBearer())], tags=["events"])
+@router.post("/events/update/{event_id}", dependencies=[Depends(JWTBearer())], tags=["events"])
 async def update_event(event_id: int, event: GameEventSchema = Body(...), token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
     if decodeJWT(token) is None or decodeJWT(token)["token_type"] != "access":
         return {"message": "Invalid token"}
@@ -165,7 +168,7 @@ async def update_event(event_id: int, event: GameEventSchema = Body(...), token:
     db.update_event(event_id, event)
     return {"message": "Event updated"}
 
-@router.post("events/sign", dependencies=[Depends(JWTBearer())], tags=["events"])
+@router.post("events/sign_user", dependencies=[Depends(JWTBearer())], tags=["events"])
 async def sign_user_to_event(event_id: int, token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
     if decodeJWT(token) is None or decodeJWT(token)["token_type"] != "access":
         return {"message": "Invalid token"}
