@@ -71,7 +71,7 @@ async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
     return resp
     
 
-@router.post("/auth/refresh", dependencies=[Depends(JWTBearer())], tags=["auth"]) # TODO bugfix auth
+@router.post("/auth/refresh", dependencies=[Depends(JWTBearer())], tags=["auth"])
 async def refresh(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
     ''' Create new access and refresh tokens by refresh token'''
     dec_token = decodeJWT(token)
@@ -94,7 +94,7 @@ async def refresh(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) ->
         refresh_token=tokens["refresh_token"],
     )
     
-@router.post("/auth/logout", dependencies=[Depends(JWTBearer())], tags=["auth"]) # TODO подумать над перебоями сервера - autpair пустой
+@router.post("/auth/logout", dependencies=[Depends(JWTBearer())], tags=["auth"])
 async def logout(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
     decoded_info = decodeJWT(token)
     if decoded_info is None or decoded_info["token_type"] != "access":
