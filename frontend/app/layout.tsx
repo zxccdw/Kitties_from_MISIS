@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 import { NavigationBar } from "./src/components/NavigationBar/NavigationBar";
 
 const geistSans = localFont({
@@ -27,8 +28,10 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <NavigationBar />
-        {children}
+        <AppRouterCacheProvider>
+          <NavigationBar />
+          {children}
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

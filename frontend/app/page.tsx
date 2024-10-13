@@ -1,13 +1,46 @@
 "use client";
 
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import styles from "./page.module.scss";
 import stadium from "./src/assets/background/stadium.png";
 import backgroundCard from "./src/assets/background/loadingImage.png";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { PostCard } from "./src/entity/PostCard/PostCard";
+import { NewsBlock } from "./src/entity/NewsBlock/NewsBlock";
+import arrowLeft from "./src/assets/background/nophoto.jpg";
+
+export interface PostCardProps {
+  imgSrc: StaticImageData;
+  title: string;
+  description: string;
+  date?: string;
+}
 
 export default function Home() {
+  const [news, setNews] = useState<PostCardProps[]>([
+    {
+      imgSrc: backgroundCard,
+      title: "Победа!",
+      description: "2:0 в пользу ФК Кокос групп",
+      date: "03.10.2024",
+    },
+    {
+      imgSrc: backgroundCard,
+      title: "Предстоящий матч",
+      description: "Не пропустите",
+      date: "12.10.2024",
+    },
+    {
+      imgSrc: backgroundCard,
+      title: "Интервью с капитаном",
+      description: "Краткое описание",
+      date: "16.10.2024",
+    },
+  ]);
+
   const router = useRouter();
+
   return (
     <div className={styles.page}>
       <div className={styles.page__welcBlock}>
@@ -18,122 +51,42 @@ export default function Home() {
             className={styles.page__backgroundStaduimImage}
           />
         </div>
-        <div
-          style={{
-            position: "absolute",
-            top: "100px",
-            alignItems: "center",
-            justifyContent: "center",
-            display: "flex",
-            flexDirection: "column",
-            rowGap: "20px",
-          }}
-        >
-          <h1 style={{ fontSize: "72px", color: "white" }}>ВМЕСТЕ К ПОБЕДЕ!</h1>
+        <div className={styles.page__joinBlock}>
+          <h1 className={styles.page__joinBlockText}>ВМЕСТЕ К ПОБЕДЕ!</h1>
           <button
-            style={{
-              width: "45%",
-              paddingTop: "10px",
-              paddingBottom: "10px",
-              fontSize: "24px",
-              borderRadius: "20px",
-              border: "none",
-              color: "white",
-              backgroundColor: "#E02A26",
-              cursor: "pointer",
-            }}
+            className={styles.page__joinBlockButton}
             onClick={() => router.push("/LogStart")}
           >
             ПРИСОЕДИНЯЙСЯ К НАМ!
           </button>
         </div>
-        <div className={styles.page__actualList}>
-          <div className={styles.actualList}>
-            <div className={styles.actualList__item}>
-              <div className={styles.actualList__blockPhoto}>
-                <Image
-                  src={backgroundCard}
-                  alt="No photo"
-                  className={styles.actualList__photoCard}
-                />
-              </div>
-              <div className={styles.actualList__description}>
-                <div className={styles.actualList__descriptionTitle}>
-                  <p className={styles.actualList__descriptionTitle__text}>
-                    Победа!
-                  </p>
-                </div>
-                <div className={styles.actualList__descriptionText}>
-                  <p className={styles.actualList__descriptionText__text}>
-                    2:0 в пользу ФК Кокос групп
-                  </p>
-                </div>
-                <div className={styles.actualList__descriptionDate}>
-                  <time
-                    dateTime="2024-10-03"
-                    className={styles.actualList__date}
-                  >
-                    03.10.2024
-                  </time>
-                </div>
-              </div>
+        <div className={styles.actualList}>
+          {news.map((element, index) => (
+            <div key={index} className={styles.actualList__blockCard}>
+              <PostCard
+                imgSrc={element.imgSrc}
+                title={element.title}
+                description={element.description}
+                date={element.date}
+              />
             </div>
-            <div className={styles.actualList__item}>
-              <div className={styles.actualList__blockPhoto}>
-                <Image
-                  src={backgroundCard}
-                  alt="No photo"
-                  className={styles.actualList__photoCard}
-                />
-              </div>
-              <div className={styles.actualList__description}>
-                <div className={styles.actualList__descriptionTitle}>
-                  <p className={styles.actualList__descriptionTitle__text}>
-                    Предстоящий матч
-                  </p>
-                </div>
-                <div className={styles.actualList__descriptionText}>
-                  <p className={styles.actualList__descriptionText__text}>
-                    Не пропустите
-                  </p>
-                </div>
-                <div className={styles.actualList__descriptionDate}>
-                  <time
-                    dateTime="2024-10-03"
-                    className={styles.actualList__date}
-                  >
-                    12.10.2024
-                  </time>
-                </div>
-              </div>
+          ))}
+        </div>
+      </div>
+      <NewsBlock btnName="ЕЩЕ НОВОСТИ" titleBlock="Новости" />
+      <NewsBlock btnName="ВСЯ КОМАНДА" titleBlock="Команда" />
+      <div className={styles.shopBlockBack}>
+        <div className={styles.shopBlock}>
+          <div className={styles.shopBlock__content}>
+            <div className={styles.shopBlock__title}>
+              <p>Магазин</p>
             </div>
-            <div className={styles.actualList__item}>
-              <div className={styles.actualList__blockPhoto}>
-                <Image
-                  src={backgroundCard}
-                  alt="No photo"
-                  className={styles.actualList__photoCard}
-                />
-              </div>
-              <div className={styles.actualList__description}>
-                <div className={styles.actualList__descriptionTitle}>
-                  <p className={styles.actualList__descriptionTitle__text}>
-                    Интервью с капитаном
-                  </p>
-                </div>
-                <div className={styles.actualList__descriptionText}>
-                  <p className={styles.actualList__descriptionText__text}>
-                    Краткое описание
-                  </p>
-                </div>
-                <div className={styles.actualList__descriptionDate}>
-                  <time
-                    dateTime="2024-10-03"
-                    className={styles.actualList__date}
-                  >
-                    16.10.2024
-                  </time>
-                </div>
+            <div className={styles.shopBlock__title2}>
+              <p>Приобретай прямо сейчас!</p>
+            </div>
+            <div className={styles.shopBlock__card}>
+              <div>
+                <Image src={arrowLeft} alt="arrow left" />
               </div>
             </div>
           </div>

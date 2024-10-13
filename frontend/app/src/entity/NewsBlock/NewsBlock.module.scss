@@ -1,0 +1,52 @@
+.page{
+    &__newsBlock{
+        width: 77%;
+        display: flex;
+        flex-direction: column;
+        margin-top: 50px;
+        color: black;
+    }
+
+    &__newsBlockTitle{
+        color: black;
+        font-weight: 700;
+        font-size: 72px;
+    }
+
+    &__newsBlockPost{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        height: 488px;
+    }
+
+    &__newsArrow{
+        width: 100px;
+        height: 100px;
+        cursor: pointer;
+    }
+
+    &__newsMoreButton{
+        display: flex;
+        justify-content: center;
+        align-self: center;
+        width: 50%;
+
+        button{
+            font-size: 20px;
+            border: 2px solid #E02A26;
+            background-color: white;
+            color:#E02A26;
+            border-radius: 10px;
+            padding: 10px 20px;
+            transition: 0.3s;
+            cursor: pointer;
+
+            &:hover{
+                background-color: #E02A26;
+                color: white;
+            }
+        }
+    }
+}
