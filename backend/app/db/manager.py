@@ -96,7 +96,7 @@ class DBManager:
         return self.session.query(User).filter_by(email=email).one_or_none()
     
     def is_admin(self, user_id: int) -> bool:
-        return self.session.query(User).filter_by(id_user=user_id, is_admin=True).first() is not None
+        return self.session.query(User).filter_by(id_user=user_id, is_staff=True).first() is not None
     
     def add_admin(self, user_id: int) -> None:
         if self.user_exists(user_id):
@@ -104,6 +104,19 @@ class DBManager:
                 {User.is_admin: True}
             )
             self.session.commit()
+            
+    def add_admin_test(self):
+        admin_user = User(
+            email="admin@example.com",
+            password=bcrypt.hash("adminadmin"),
+            first_name="admin",
+            second_name="admin",
+            sex="male",
+            date_of_birth="01-01-1990",
+            is_staff=True
+        )
+        self.session.add(admin_user)
+        self.session.commit()
     
     def add_tokens(self, id_user: int, tokens: Dict[str, str]) -> None:
         """Add or update tokens in the database"""
