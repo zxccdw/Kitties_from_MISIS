@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Path, HTTPException, status, Query, Body, dependencies, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 from auth.state import AuthPair
 from auth.handler import signJWT, decodeJWT
@@ -31,7 +31,7 @@ authpair = AuthPair()
 db = DBManager("logger")
 # db._recreate_tables()
 
-@router.get("/ping")
+@router.get("/ping", tags=["tests"])
 async def get_server_status() -> str:
     return "pong"
 
@@ -50,9 +50,11 @@ async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
     if user is None:
         return {"message": "User not found"}
     
-    active_tokens = db.get_tokens(user.id_user)
-    if  active_tokens is not None and not decodeJWT(active_tokens["refresh_token"]) is None:
-        return {"message": "Already logged in"}
+    active_tokens_in_db = db.get_tokens(user.id_user)
+    active_tokens_in_cookies = authpair.get(active_tokens_in_db["access_token"])
+    
+    if active_tokens_in_cookies is not None and decodeJWT(active_tokens_in_cookies) is not None:
+            return {"message": "User already logged in"}
     
     if not bcrypt.verify(data.password, user.password):
         return {"message": "Wrong password"}
@@ -69,7 +71,7 @@ async def login(data: UserLoginSchema = Body(...)) -> Dict[str, str]:
     return resp
     
 
-@router.post("/auth/refresh", dependencies=[Depends(JWTBearer())], tags=["auth"]) # TODO bugfix auth
+@router.post("/auth/refresh", dependencies=[Depends(JWTBearer())], tags=["auth"])
 async def refresh(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
     ''' Create new access and refresh tokens by refresh token'''
     dec_token = decodeJWT(token)
@@ -80,6 +82,7 @@ async def refresh(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) ->
     tokens = db.get_tokens(user_id)
     if tokens["refresh_token"] != token:
         return {"message": "Invalid token"}
+    
     authpair.pop(tokens["access_token"])
     
     tokens = signJWT(user_id)
@@ -91,11 +94,12 @@ async def refresh(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) ->
         refresh_token=tokens["refresh_token"],
     )
     
-@router.post("/auth/logout", dependencies=[Depends(JWTBearer())], tags=["auth"]) # TODO подумать над перебоями сервера - autpair пустой
+@router.post("/auth/logout", dependencies=[Depends(JWTBearer())], tags=["auth"])
 async def logout(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
     decoded_info = decodeJWT(token)
     if decoded_info is None or decoded_info["token_type"] != "access":
         return {"message": "Invalid token"}
+    
     user_id = authpair.get(token)
     if user_id is None:
         return {"message": "Invalid token"}
@@ -107,21 +111,78 @@ async def logout(token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> 
 
 # end region auth
 
-# region events
-@router.get("/events", tags=["events"]) # hz
-async def get_events(max_events: int = 5) -> List[GameEventSchema]:
+@router.get("/user/profile/{user_email}", tags=["user"])
+async def get_user_by_email(user_email: str = Query(...)) -> Dict[str, Any]:
+    result = db.get_user_by_email(user_email)
+    if result is None:
+        return {"message": "User not found"}
+    return {
+        "email": result.email,
+        "first_name": result.first_name,
+        "second_name": result.second_name,
+        "third_name": result.third_name,
+        "sex": result.sex,
+        "date_of_birth": result.date_of_birth
+    }
+
+
+@router.get("/events/get", tags=["events"]) # hz
+async def get_events(max_events: int = 5) -> Dict[int, dict]:
     if max_events <= 0:
         max_events = 5
     return db.get_events(max_events=max_events)
 
-@router.post("/events", tags=["events"])
-async def add_event(event: GameEventSchema = Body(...)) -> Dict[str, str]:
-    db.add_event(event)
-    return {"message": "Event created"}
-# end region events
+@router.get("/events/get/{event_id}", tags=["events"])
+async def get_event_by_id(event_id: int) -> Dict[int, dict]:
+    return db.get_event(event_id)
+
 
 # region secure
+@router.post("/events/add", dependencies=[Depends(JWTBearer())], tags=["events"])
+async def add_event(event: GameEventSchema = Body(...), token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
+    if decodeJWT(token) is None or decodeJWT(token)["token_type"] != "access":
+        return {"message": "Invalid token"}
 
+    user_id = authpair.get(token)
+    if user_id is None:
+        return {"message": "Invalid token"}
+    
+    if not db.is_admin(user_id):
+        return {"message": "User is not admin"}
+    
+    db.add_event(event)
+    return {"message": "Event created"}
+
+@router.post("/events/update/{event_id}", dependencies=[Depends(JWTBearer())], tags=["events"])
+async def update_event(event_id: int, event: GameEventSchema = Body(...), token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
+    if decodeJWT(token) is None or decodeJWT(token)["token_type"] != "access":
+        return {"message": "Invalid token"}
+
+    user_id = authpair.get(token)
+    if user_id is None:
+        return {"message": "Invalid token"}
+    
+    if not db.is_admin(user_id):
+        return {"message": "User is not admin"}
+    
+    db.update_event(event_id, event)
+    return {"message": "Event updated"}
+
+@router.post("events/sign_user", dependencies=[Depends(JWTBearer())], tags=["events"])
+async def sign_user_to_event(event_id: int, token: HTTPAuthorizationCredentials = Depends(JWTBearer())) -> Dict[str, str]:
+    if decodeJWT(token) is None or decodeJWT(token)["token_type"] != "access":
+        return {"message": "Invalid token"}
+    
+    user_id = authpair.get(token)
+    if user_id is None:
+        return {"message": "Invalid token"}
+    
+    if gb.sign_user_to_event(user_id, event_id):
+        return {"message": "User signed"}
+    
+    return {"message": "User not signed"}
+    
+    
 # end region secure
 
 # test region

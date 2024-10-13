@@ -35,7 +35,6 @@ class UserSchema(BaseModel): # TODO add validation
 
 
 class GameEventSchema(BaseModel):
-    id_event: int = Field(...)
     title: str = Field(...)
     description: str = Field(...)
     start_date: datetime = Field(...)
@@ -48,7 +47,6 @@ class GameEventSchema(BaseModel):
         orm_mode = True
         schema_extra = {
             "example": {
-                "id_event": 1,
                 "title": "Game event title",
                 "description": "Game event description",
                 "start_date": "2024-10-07 13:00:00.956741",
