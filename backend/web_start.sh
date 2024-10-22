@@ -1,2 +1,2 @@
 cd app
-python ./app/web_entry_point.py
+python ./web_entry_point.py
