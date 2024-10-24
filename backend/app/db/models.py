@@ -9,7 +9,7 @@ from sqlalchemy import (
     JSON,
     Enum,
     ForeignKey,
-    Boolean
+    Boolean,
 )
 from sqlalchemy.orm import declarative_base, relationship
 import enum

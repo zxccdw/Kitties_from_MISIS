@@ -10,7 +10,6 @@ ENV PYTHONFAULTHANDLER=1 \
 RUN apt update && apt install -y gcc python3-dev && rm -rf /var/lib/apt/lists/*
 
 copy . .
-WORKDIR ./backend
 
 RUN pip install --no-cache-dir -r requirements.txt
 
